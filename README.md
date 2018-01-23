@@ -1,2 +1,4 @@
 # mint-to-sankey
-Convert transactions from mint into a Sankey chart
+Quickly convert transactions data from mint into a Sankey chart.
+
+<img src="ss.png"></img>

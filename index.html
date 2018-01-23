@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="nvd3/build/nv.d3.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
+    <script src="nvd3/build/nv.d3.js"></script>
+    <script src="data.js"></script>
+    <script src="mint_to_sankey.js"></script>
+
+
+    <style>
+        text {
+            font: 12px sans-serif;
+        }
+        svg {
+            display: block;
+        }
+        html, body, svg {
+            margin: 0px;
+            padding: 0px;
+            width: 100%;
+        }
+
+        .nvd3 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* --- Sankey chart styles --- */
+
+        .node rect {
+            cursor: move;
+            fill-opacity: .9;
+            shape-rendering: crispEdges;
+        }
+
+        .node text {
+            pointer-events: none;
+            text-shadow: 0 1px 0 #fff;
+        }
+
+        .link {
+            fill: none;
+            stroke: #000;
+            stroke-opacity: .2;
+        }
+
+        .link:hover {
+            stroke-opacity: .5;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<div id="sankey" class="nvd3"></div>
+
+<script>
+    var width = 1000,
+    height = 800;
+
+    var data = prepData(data_raw);
+
+    nv.addGraph(function() {
+        var chart = nv.models.sankeyChart()
+            .width(width)
+            .height(height)
+            .nodeId(function(d) { return d.name })
+            .nodeWidth(10)
+            .nodePadding(10)
+            .margin({left: 5})
+            .linkTitle(function (d) {
+                return '$' + d3.format(',.0f')(d.value)
+            })
+            .nodeStyle({
+                title: function(d) {
+                    var name = d.name
+                    name = name.substring(0,1) == '_' ? name.substring(1,name.length) : d.name
+                    return name + '\n' + '$' + d3.format(',.0f')(d.value);
+                },
+                label: function(d) {
+                    var name = d.name
+                    return name.substring(0,1) == '_' ? name.substring(1,name.length) : d.name;
+                }
+            })
+
+        d3.select('#sankey')
+            .attr('width', width)
+            .attr('height', height)
+            .datum(data)
+            .call(chart);
+
+        return chart;
+    });
+
+</script>
+</body>
+</html>
