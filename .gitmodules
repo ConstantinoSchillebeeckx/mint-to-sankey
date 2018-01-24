@@ -2,3 +2,6 @@
 	path = nvd3
 	url = git@github.com:ConstantinoSchillebeeckx/nvd3.git
     branch = new_plots
+[submodule "PapaParse"]
+	path = PapaParse
+	url = https://github.com/mholt/PapaParse.git

@@ -5,6 +5,7 @@
     <link href="nvd3/build/nv.d3.css" rel="stylesheet" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
     <script src="nvd3/build/nv.d3.js"></script>
+    <script src="PapaParse/papaparse.min.js"></script>
     <script src="data.js"></script>
     <script src="mint_to_sankey.js"></script>
 
@@ -55,88 +56,97 @@
 </head>
 <body>
 
-
+<input type="file" id="upload" accepts=".csv" onchange="handleFiles(this.files[0])">
 <div id="sankey" class="nvd3"></div>
 
 <script>
-    var width = 1000,
-    height = 800;
+    function handleFiles(file) {
+        var tmp = Papa.parse(file,{
+            header: true,
+            complete: function (results) { render(results.data) }
+        })
+    }
 
-    var data = prepData(data_raw, 'Income');
-    console.log(data)
+    function render(data_raw) {
+        var width = 1000,
+        height = 800;
 
-    nv.addGraph(function() {
+        var data = prepData(data_raw, 'Income');
+        console.log(data)
 
-        function cleanName(name) {
-            // parent nodes will have a prepended '_' on its name
-            // to allow a child by the same name
-            // this returns any node name with the removed '_'
-            // if it exists
-            return name.substring(0,1) == '_' ? name.substring(1,name.length) : name
-        }
+        nv.addGraph(function() {
 
-        var chart = nv.models.sankeyChart()
-            .width(width)
-            .height(height)
-            .nodeId(function(d) { return d.name })
-            .nodeWidth(10)
-            .nodePadding(10)
-            .margin({left: 5})
-            .linkTitle(function (d) {
-                return '$' + d3.format(',.0f')(d.value)
-            })
-            .nodeStyle({
-                title: function(d) {
-                    return cleanName(d.name) + '\n' + '$' + d3.format(',.0f')(d.value);
-                },
-                label: function(d) {
-                    return cleanName(d.name);
-                },
-                fillColor: function(d) {
-                    var domain = [
-                        'Income',
-                        'Auto & Transport',
-                        'Bills & Utilities',
-                        'Business Services',
-                        'Education',
-                        'Entertainment',
-                        'Fees & Charges',
-                        'Financial',
-                        'Food & Dining',
-                        'Gifts & Donations',
-                        'Health & Fitness',
-                        'Home',
-                        'Misc Expenses',
-                        'Personal Care',
-                        'Pets',
-                        'Shopping',
-                        'Taxes',
-                        'Travel',
-                        'Uncategorized',
-                    ]
-                    var color = d3.scale.category20()
-                                  .domain(domain)
+            function cleanName(name) {
+                // parent nodes will have a prepended '_' on its name
+                // to allow a child by the same name
+                // this returns any node name with the removed '_'
+                // if it exists
+                return name.substring(0,1) == '_' ? name.substring(1,name.length) : name
+            }
 
-                    var name = cleanName(d.name);
-                    if (d.sourceLinks.length === 0) {
-                        // if child debit, grab parent name
-                        name = cleanName(d.targetLinks[0].source.name);
-                    } else if (d['Transaction Type'] == 'credit') {
-                        name = 'Income';
+            var chart = nv.models.sankeyChart()
+                .width(width)
+                .height(height)
+                .nodeId(function(d) { return d.name })
+                .nodeWidth(10)
+                .nodePadding(10)
+                .margin({left: 5})
+                .linkTitle(function (d) {
+                    return '$' + d3.format(',.0f')(d.value)
+                })
+                .nodeStyle({
+                    title: function(d) {
+                        return cleanName(d.name) + '\n' + '$' + d3.format(',.0f')(d.value);
+                    },
+                    label: function(d) {
+                        return cleanName(d.name);
+                    },
+                    fillColor: function(d) {
+                        var domain = [
+                            'Income',
+                            'Auto & Transport',
+                            'Bills & Utilities',
+                            'Business Services',
+                            'Education',
+                            'Entertainment',
+                            'Fees & Charges',
+                            'Financial',
+                            'Food & Dining',
+                            'Gifts & Donations',
+                            'Health & Fitness',
+                            'Home',
+                            'Misc Expenses',
+                            'Personal Care',
+                            'Pets',
+                            'Shopping',
+                            'Taxes',
+                            'Travel',
+                            'Uncategorized',
+                        ]
+                        var color = d3.scale.category20()
+                                      .domain(domain)
+
+                        var name = cleanName(d.name);
+                        if (d.sourceLinks.length === 0) {
+                            // if child debit, grab parent name
+                            name = cleanName(d.targetLinks[0].source.name);
+                        } else if (d['Transaction Type'] == 'credit') {
+                            name = 'Income';
+                        }
+
+                        return color(name)
                     }
+                })
 
-                    return color(name)
-                }
-            })
+            d3.select('#sankey')
+                .attr('width', width)
+                .attr('height', height)
+                .datum(data)
+                .call(chart);
 
-        d3.select('#sankey')
-            .attr('width', width)
-            .attr('height', height)
-            .datum(data)
-            .call(chart);
-
-        return chart;
-    });
+            return chart;
+        });
+    }
 
 </script>
 </body>
