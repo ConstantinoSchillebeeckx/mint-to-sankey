@@ -84,6 +84,11 @@
                 label: function(d) {
                     var name = d.name
                     return name.substring(0,1) == '_' ? name.substring(1,name.length) : d.name;
+                },
+                fillColor: function(d) {
+                    var color = d3.scale.category10()
+                                  .domain(['debit','credit'])
+                    return color(d['Transaction Type'])
                 }
             })
 

@@ -103,13 +103,15 @@ function prepData(dat, incomeParent='Income') {
         // (e.g. Bill & Utilities), therefore we append a '_' to the
         // parent category to make it distinct, this acts as the source
         // for a transaction
-        nodes.push({'name': '_'+group})
+        nodes.push({
+            'name': '_'+group,
+            'Transaction Type': type
+        }) // manually at parent node
         nested.forEach(function (d) {
             var node = {'name': d.key}
             for (var i in d.values.meta) {
                 if (i !== 'Amount') node[i] = d.values.meta[i];
             }
-            //console.log(node)
             nodes.push(node);
         })
 
