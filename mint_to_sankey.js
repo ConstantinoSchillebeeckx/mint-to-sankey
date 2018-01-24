@@ -1,16 +1,47 @@
-function prepData(dat) {
+function prepData(dat, incomeParent='Income') {
+    /*
+     * Prepare data for use with Sankey plot.
+     *
+     * @param dat {obj} : input data of the form
+     * @param incomeParent {str} : name of parent group for all income, this
+     *    node is used to join credit transactions to debit transactions.
+     * 
+     * @return {obj} : data for Sankey chart in the form
+     *       {"nodes": 
+     *         [
+     *           {"id": "Alice"},
+     *           {"id": "Bob"},
+     *           {"id": "Carol"}
+     *         ],
+     *        "links":
+     *         [
+     *           {"source": "Alice", "target": "Bob"},
+     *           {"source": "Bob", "target": "Carol"}
+     *         ]
+     *       }
+     */
 
     var nodes = [], links = [];
     var debitSum = {};
 
-    // Groups will define how transaction are grouped.
-    // Any categories not listed here, but which are part of the
-    // input data will be ignored.
-    // Any transaction with a parent category (e.g. Entertainment) will
-    // automatically be placed into that parent category (i.e. the transactions
-    // will look like Entertainment -> Entertainment)
+    // Input data must have, at a minimum, the following object properties:
+    //     - `Amount` : the transaction amount
+    //     - `Transaction Type` : either 'debit' or 'credit'
+    //     - `Category` : transaction category (e.g. 'Utilities')
+    // Any other properties will simply be passed onto the node in the chart.
+    //
+    // Groups defines how transaction categories are grouped together.
+    //
+    // For example the group:
+    //    `'Travel': ['Rental Car & Taxi','Hotel','Air Travel']`
+    // will place all transactions with the Category 'Rental Car & Tax', 
+    // 'Hotel' or 'Air Travel' into the parent group 'Travel'. Furthermore,
+    // any transactions with the Category 'Travel' will also be placed into
+    // the 'Travel' parent group since Mint won't always properly categorize
+    // the transaction into one of the sub-groups.
+    // Any transactions with categories not listed in any of the groups will
+    // simply be ignored.
     var groups = {
-        "EBIT": ['Income', 'Interest Income', 'Freelance', 'Reimbursement', 'Paycheck'],
         'Auto & Transport': ['Gas & Fuel','Parking','Service & Parts','Public Transportation','Auto Insurance','Auto Payment'],
         'Bills & Utilities': ['Internet','Utilities','Mobile Phone','Rent','Home Phone','Mortgage & Rent'],
         'Business Services': ['Shipping','Web hosting'],
@@ -30,6 +61,7 @@ function prepData(dat) {
         'Travel': ['Rental Car & Taxi','Hotel','Air Travel'],
         'Uncategorized': ['Cash & ATM','Check']
     }
+    groups[incomeParent] = ['Interest Income', 'Freelance', 'Reimbursement', 'Paycheck']
 
     for (var group in groups) {
 
@@ -51,14 +83,19 @@ function prepData(dat) {
         // group income on Category and sum all transaction amounts
         var nested = d3.nest()
                         .key(function (d) { return d.Category; })
-                        .rollup(function(group) { return d3.sum(group, function(d) { return d.Amount})})
+                        .rollup(function(group) { 
+                            return {
+                                'sum': d3.sum(group, function(d) { return d.Amount}),
+                                'meta': group[0]
+                            }
+                        })
                         .entries(filtered)
 
-        // sup value for parent debit group
+        // sum value for parent debit group
         // in order to make the link between
         // debit and credit
         if (type == 'debit') {
-            debitSum[group] = d3.sum(nested, function(d) { return d.values })
+            debitSum[group] = d3.sum(nested, function(d) { return d.values.sum })
         }
 
         // generate nodes
@@ -68,7 +105,12 @@ function prepData(dat) {
         // for a transaction
         nodes.push({'name': '_'+group})
         nested.forEach(function (d) {
-            nodes.push({'name': d.key})
+            var node = {'name': d.key}
+            for (var i in d.values.meta) {
+                if (i !== 'Amount') node[i] = d.values.meta[i];
+            }
+            //console.log(node)
+            nodes.push(node);
         })
 
         // generate links
@@ -76,8 +118,8 @@ function prepData(dat) {
             links.push({
                 'target': type == 'debit' ? d.key : '_'+group,
                 'source': type == 'credit' ? d.key : '_'+group,
-                'value': d.values
-            })
+                'value': d.values.sum
+            });
         })
     }
 
@@ -95,7 +137,7 @@ function prepData(dat) {
     // add links between credit and debit
     for (var group in debitSum) {
         links.push({
-            'source': '_EBIT',
+            'source': '_'+incomeParent,
             'target': '_'+group,
             'value': debitSum[group]
         })
