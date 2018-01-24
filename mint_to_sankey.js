@@ -1,22 +1,23 @@
-function prepData(dat, incomeParent='Income') {
+function prepData(dat, incomeParent) {
     /*
      * Prepare data for use with Sankey plot.
      *
      * @param dat {obj} : input data of the form
      * @param incomeParent {str} : name of parent group for all income, this
-     *    node is used to join credit transactions to debit transactions.
+     *    node is used to join credit transactions to debit transactions. If
+     *    not specified, all transactions are considered debit.
      * 
      * @return {obj} : data for Sankey chart in the form
      *       {"nodes": 
      *         [
-     *           {"id": "Alice"},
-     *           {"id": "Bob"},
-     *           {"id": "Carol"}
+     *           {"name": "Utilities", "Transaction Type": "debit"},
+     *           {"name": "Rent", "Transaction Type": "debit"},
+     *           {"name": "Bills & Utilities", "Transaction Type": "debit"}
      *         ],
      *        "links":
      *         [
-     *           {"source": "Alice", "target": "Bob"},
-     *           {"source": "Bob", "target": "Carol"}
+     *           {"source": "Bills & Utilities", "target": "Rent", "value":932.3},
+     *           {"source": "Bill & Utilities", "target": "Utilities", "value":74.00}
      *         ]
      *       }
      */
@@ -43,7 +44,7 @@ function prepData(dat, incomeParent='Income') {
     // simply be ignored.
     var groups = {
         'Auto & Transport': ['Gas & Fuel','Parking','Service & Parts','Public Transportation','Auto Insurance','Auto Payment'],
-        'Bills & Utilities': ['Internet','Utilities','Mobile Phone','Rent','Home Phone','Mortgage & Rent'],
+        'Bills & Utilities': ['Internet','Utilities','Mobile Phone','Rent','Home Phone'],
         'Business Services': ['Shipping','Web hosting'],
         'Education': ['Books & Supplies'],
         'Entertainment': ['Movies & DVDs','Music','Newspapers & Magazines','Amusement','Entertainment'],
@@ -61,7 +62,9 @@ function prepData(dat, incomeParent='Income') {
         'Travel': ['Rental Car & Taxi','Hotel','Air Travel'],
         'Uncategorized': ['Cash & ATM','Check']
     }
-    groups[incomeParent] = ['Interest Income', 'Freelance', 'Reimbursement', 'Paycheck']
+    if (typeof(incomeParent) !== 'undefined') {
+        groups[incomeParent] = ['Interest Income', 'Freelance', 'Reimbursement', 'Paycheck']
+    }
 
     for (var group in groups) {
 
@@ -136,13 +139,27 @@ function prepData(dat, incomeParent='Income') {
         return all_nodes.indexOf(node.name) != -1;
     })
 
-    // add links between credit and debit
-    for (var group in debitSum) {
-        links.push({
-            'source': '_'+incomeParent,
-            'target': '_'+group,
-            'value': debitSum[group]
-        })
+
+    // add links between credit and debit if incomeParent specified
+    // otherwise assume all transaction are debit and manually
+    // generate an 'All debit' parent node.
+    if (typeof(incomeParent) !== 'undefined') {
+        for (var group in debitSum) {
+            links.push({
+                'source': '_'+incomeParent,
+                'target': '_'+group,
+                'value': debitSum[group]
+            })
+        }
+    } else {
+        for (var group in debitSum) {
+            links.push({
+                'source': 'All debit',
+                'target': '_'+group,
+                'value': debitSum[group]
+            })
+        }
+        nodes.push({'name':'All debit'})
     }
 
     return {'nodes':nodes, 'links':links}

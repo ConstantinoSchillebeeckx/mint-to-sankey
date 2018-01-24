@@ -20,6 +20,7 @@
             margin: 0px;
             padding: 0px;
             width: 100%;
+            height: 100%;
         }
 
         .nvd3 {
@@ -61,10 +62,19 @@
     var width = 1000,
     height = 800;
 
-    var data = prepData(data_raw);
+    var data = prepData(data_raw, 'Income');
     console.log(data)
 
     nv.addGraph(function() {
+
+        function cleanName(name) {
+            // parent nodes will have a prepended '_' on its name
+            // to allow a child by the same name
+            // this returns any node name with the removed '_'
+            // if it exists
+            return name.substring(0,1) == '_' ? name.substring(1,name.length) : name
+        }
+
         var chart = nv.models.sankeyChart()
             .width(width)
             .height(height)
@@ -77,18 +87,45 @@
             })
             .nodeStyle({
                 title: function(d) {
-                    var name = d.name
-                    name = name.substring(0,1) == '_' ? name.substring(1,name.length) : d.name
-                    return name + '\n' + '$' + d3.format(',.0f')(d.value);
+                    return cleanName(d.name) + '\n' + '$' + d3.format(',.0f')(d.value);
                 },
                 label: function(d) {
-                    var name = d.name
-                    return name.substring(0,1) == '_' ? name.substring(1,name.length) : d.name;
+                    return cleanName(d.name);
                 },
                 fillColor: function(d) {
-                    var color = d3.scale.category10()
-                                  .domain(['debit','credit'])
-                    return color(d['Transaction Type'])
+                    var domain = [
+                        'Income',
+                        'Auto & Transport',
+                        'Bills & Utilities',
+                        'Business Services',
+                        'Education',
+                        'Entertainment',
+                        'Fees & Charges',
+                        'Financial',
+                        'Food & Dining',
+                        'Gifts & Donations',
+                        'Health & Fitness',
+                        'Home',
+                        'Misc Expenses',
+                        'Personal Care',
+                        'Pets',
+                        'Shopping',
+                        'Taxes',
+                        'Travel',
+                        'Uncategorized',
+                    ]
+                    var color = d3.scale.category20()
+                                  .domain(domain)
+
+                    var name = cleanName(d.name);
+                    if (d.sourceLinks.length === 0) {
+                        // if child debit, grab parent name
+                        name = cleanName(d.targetLinks[0].source.name);
+                    } else if (d['Transaction Type'] == 'credit') {
+                        name = 'Income';
+                    }
+
+                    return color(name)
                 }
             })
 
