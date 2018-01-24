@@ -12,7 +12,7 @@ Quickly convert transactions data from mint into a Sankey chart.
 
 ## A note about input data
 
-Any type of transaction data can be visualized as long as your uploading a csv with at least the following columns:
+Any type of transaction data can be visualized as long as you're uploading a csv with **at least the following columns**:
 
 - Amount : value of the transaction
 - Transaction Type : debit or credit
