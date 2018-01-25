@@ -6,7 +6,7 @@ Quickly convert transactions data from mint into a Sankey chart.
 ## Usage
 
 1. Download your Mint transaction data by logging into your account clicking on `TRANSACTIONS` and then choosing `Export all xxx transactions` at the bottom right of the listed transactions.
-2. `git clone git@github.com:ConstantinoSchillebeeckx/mint-to-sankey.git --recursive`
+2. Assuming you have git installed, run the following `git clone git@github.com:ConstantinoSchillebeeckx/mint-to-sankey.git --recursive`
 3. Navigate to the unziped directory `mint-to-sankey`.
 4. Open [index.html](index.html) in your browser, click the `Choose File` button and select the csv you downloaded in step 1.
 
