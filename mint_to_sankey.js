@@ -49,7 +49,7 @@ function prepData(dat, incomeParent) {
         'Education': ['Books & Supplies'],
         'Entertainment': ['Movies & DVDs','Music','Newspapers & Magazines','Amusement','Entertainment'],
         'Fees & Charges': ['Finance Charge','Service Fee','ATM Fee'],
-        'Financial': ['Investment',529,'Cryptocurrency','Financial Advisor','Life Insurance'],
+        'Financial': ['Investment','529','Cryptocurrency','Financial Advisor','Life Insurance'],
         'Food & Dining': ['Groceries','Coffee Shops','Fast Food','Restaurants','Alcohol & Bars'],
         'Gifts & Donations': ['Gift','Charity'],
         'Health & Fitness': ['Gym','Pharmacy','Doctor','Sports','Eyecare'],
@@ -72,8 +72,11 @@ function prepData(dat, incomeParent) {
         keep_category = groups[group]
         keep_category.push(group);
         var filtered = dat.filter(function(d, i) {
+            if (group == 'Financial' && d.Category == '529') {
+            }
             return keep_category.indexOf(d.Category) !== -1;
         })
+
 
         // if we've filtered everything out
         // because these categories don't exist
