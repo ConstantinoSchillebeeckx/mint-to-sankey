@@ -2,10 +2,17 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <link href="nvd3/build/nv.d3.css" rel="stylesheet" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" charset="utf-8"></script>
-    <script src="nvd3/build/nv.d3.js"></script>
+    <!-- 
+    Should use the module instead, however I'm using the web version for simplicity sake for when
+    people download the zip (since submodules aren't also downloaded.
+    <script src="nvd3/build/nv.d3.js"></script> 
+    <link href="nvd3/build/nv.d3.css" rel="stylesheet" type="text/css">
     <script src="PapaParse/papaparse.min.js"></script>
+    -->
+    <script src="https://cdn.rawgit.com/ConstantinoSchillebeeckx/nvd3/2d2db73d65c90eb328ee4d788b6c03a2ed2ab020/build/nv.d3.js"></script>
+    <script src="https://cdn.rawgit.com/mholt/PapaParse/418ea803b830dc4b3a1f01d56fa776ecf1fbe6da/papaparse.min.js"></script>
+    <link href="https://cdn.rawgit.com/ConstantinoSchillebeeckx/nvd3/2d2db73d65c90eb328ee4d788b6c03a2ed2ab020/build/nv.d3.css"></script>
     <script src="mint_to_sankey.js"></script>
 
 
