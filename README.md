@@ -9,6 +9,7 @@ Quickly convert transactions data from mint into a Sankey chart.
 2. [Download](https://github.com/ConstantinoSchillebeeckx/mint-to-sankey/archive/master.zip) this repository.
 3. Unzip the download and navigate to the unziped directory `mint-to-sankey-master`.
 4. Open [index.html](index.html) in your browser, click the `Choose File` button and select the csv you downloaded in step 1.
+5. To confirm things are working as they should, select the file `demo_data.csv`; the resulting chart should be very similar to the one shown above.
 
 ## A note about input data
 
