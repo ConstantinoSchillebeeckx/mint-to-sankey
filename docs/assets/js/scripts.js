@@ -7,7 +7,7 @@ function handleFiles(file) {
 
 function render(data_raw) {
     var width = 800,
-    height = 800;
+        height = 800;
 
     var data = prepData(data_raw, 'Income');
 
